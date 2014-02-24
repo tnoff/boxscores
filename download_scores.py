@@ -2,6 +2,7 @@ import argparse
 from HTMLParser import HTMLParser
 import requests
 import os
+import sys
 
 MAIN_PREFIX = 'http://www.baseball-reference.com'
 BOXES = MAIN_PREFIX + '/boxes/'
@@ -71,6 +72,7 @@ def get_abbreviation(link):
 def get_team_info(year):
     url = BOXES + year + '.shtml'
     r = requests.get(url)
+    check_results(r, 'Unable to retrieve data for the year requested.')
     parser = list_teams()
     teams = parser.find_teams(r.text)
     team_data = dict()
@@ -92,6 +94,16 @@ def parse_args():
     p.add_argument('year', help='Year to download')
     p.add_argument('save_dir', help='Directory to Save Results')
     return p.parse_args()
+
+def check_results(request, msg=None):
+    ''' Handle the fact that baseball-reference.com returns a "200" status code
+        but an error message in the page content, rather than a legitimate HTTP
+        error response. '''
+    if not msg:
+        msg = 'Unknown error retrieving page.'
+    if '404 - File Not Found' in request.text:
+        print '#ERROR: %s' % msg
+        sys.exit(-1)
 
 def main():
     args = vars(parse_args())
@@ -115,6 +127,7 @@ def main():
             print str(int((percent* 100 ))) + '% Done'
             percent += 0.1
         r = requests.get(MAIN_PREFIX + game)
+        check_results(r, 'Unable to retrieve data for the game requested.')
         file_name = game.split('/')[3]
         with open(args['save_dir'] + file_name, 'w+') as f:
             f.write(r.text)
