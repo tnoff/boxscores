@@ -92,7 +92,7 @@ def get_team_games(team_link):
 def parse_args():
     p = argparse.ArgumentParser(description='Download boxscores')
     p.add_argument('year', help='Year to download')
-    p.add_argument('save_dir', help='Directory to Save Results')
+    p.add_argument('save_dir', help='Directory to Save Results', nargs='?', default=None)
     return p.parse_args()
 
 def check_results(request, msg=None):
@@ -107,10 +107,11 @@ def check_results(request, msg=None):
 
 def main():
     args = vars(parse_args())
-    if not os.path.isdir(args['save_dir']):
-        os.mkdir(args['save_dir'])
-    if not args['save_dir'].endswith('/'):
-        args['save_dir'] += '/'
+    output_dir = os.path.abspath('.')
+    if args['save_dir']:
+        if not os.path.isdir(args['save_dir']):
+            os.mkdir(args['save_dir'])
+        output_dir = args['save_dir']
     print 'Getting Team List'
     teams = get_team_info(args['year'])
     all_games = set([])
@@ -129,7 +130,7 @@ def main():
         r = requests.get(MAIN_PREFIX + game)
         check_results(r, 'Unable to retrieve data for the game requested.')
         file_name = game.split('/')[3]
-        with open(args['save_dir'] + file_name, 'w+') as f:
+        with open(os.path.join(output_dir, file_name), 'w+') as f:
             f.write(r.text)
         count += 1
 
