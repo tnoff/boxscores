@@ -70,9 +70,9 @@ def main():
     total = len(all_games) * 1.0
     print 'Downloading Boxscores'
     for game in all_games:
-        if ( count/total ) >= percent:
-            print str(int((percent* 100 ))) + '% Done'
-            percent += 0.1
+        percent = count / total
+        sys.stdout.write("\rProgress: [ %s ] %0.f%%" % ('#' * int(percent * 50), percent * 100))
+        sys.stdout.flush()
         r = requests.get(MAIN_PREFIX + game)
         check_results(r, 'Unable to retrieve data for the game requested.')
         file_name = game.split('/')[3]
