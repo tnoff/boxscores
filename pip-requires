@@ -1,4 +1,8 @@
+PyYAML>=3.11
 argparse>=1.2.1
+astroid>=1.1.1
 beautifulsoup4>=4.3.2
+logilab-common>=0.62.0
+pyaml>=14.05.7
 requests>=2.3.0
 wsgiref>=0.1.2
