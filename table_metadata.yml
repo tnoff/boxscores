@@ -49,7 +49,7 @@
             - 'score INTEGER'
             - 'hits INTEGER'
             - 'errors INTEGER'
-            - 'lob INTEGER' # Left on base
+            - 'left_on_base INTEGER' # Left on base
             - 'manager VARCHAR(1023)' # FK to manager.link
 
 

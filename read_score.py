@@ -69,8 +69,8 @@ EXTRA_PLAYER = {
 }
 
 EXTRA_TEAM = {
-    #HTML TAG: DATABASE COLUMN
-    'teamlob' : 'lob',
+    # HTML TAG: DATABASE COLUMN
+    'teamlob' : 'left_on_base',
 }
 
 
