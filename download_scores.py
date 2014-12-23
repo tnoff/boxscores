@@ -35,7 +35,7 @@ def collect_teams_and_schedules(year, cursor):
         print 'Gathering year:%d, Team:%s' % (year, info['team'])
         link = MAIN_PREFIX + info['schedule-link']
 
-        query = 'INSERT INTO boxscore_meta(year, team, schedule_link) VALUES (%d, "%s", "%s")' %  (year, info['team'], link)
+        query = 'INSERT INTO boxscore_meta(year, team_name, schedule_link) VALUES (%d, "%s", "%s")' %  (year, info['team'], link)
         cursor.execute(query)
 
 def __insert_boxscore(link, team, html_dir, cursor):
@@ -67,7 +67,7 @@ def __insert_boxscore(link, team, html_dir, cursor):
            " VALUES ('%s', NULL, '%s', '%s', '%s')" % (team, link, save_path, date_string)
     cursor.execute(query)
 
-def __collect_team(url, team, year, cursor, html_dir):
+def __collect_team(url, team, cursor, html_dir):
     r = requests.get(url)
     __check_results(r, msg='Unable to retrieve team:%s' % url)
     soup = BeautifulSoup(r.text)
@@ -88,14 +88,8 @@ def __collect_team(url, team, year, cursor, html_dir):
                     query = 'UPDATE boxscore SET team_two="%s" WHERE link="%s"' % (team, link)
                     cursor.execute(query)
 
-    query = 'select count(*) from boxscore where (date BETWEEN "%d-01-01" AND "%d-12-31") AND ( team_one_name="%s" OR team_two_name="%s")' % (year, year, team, team)
-    cursor.execute(query)
-    result = cursor.fetchall()[0][0]
-    query = 'update boxscore_meta set game_count=%d where team="%s" and year=%d' % (result, team, year)
-    cursor.execute(query)
-
 def collect_team_games(year, cursor, html_dir):
-    query = 'SELECT year,team,schedule_link, game_count from boxscore_meta where year=%d' % year
+    query = 'SELECT year,team_name,schedule_link from boxscore_meta where year=%d' % year
     cursor.execute(query)
     html_save = os.path.abspath(html_dir)
     #Make dir if needed
@@ -113,10 +107,7 @@ def collect_team_games(year, cursor, html_dir):
         #Tuple returned (year, team, link)
         url = item[2]
         team = item[1]
-        game_count = item[3]
-        if game_count:
-            continue
-        __collect_team(url, team, year, cursor, html_save)
+        __collect_team(url, team, cursor, html_save)
 
     sys.stdout.write('\n')
 

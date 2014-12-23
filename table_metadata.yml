@@ -2,10 +2,9 @@
     tables:
         - name: 'boxscore_meta'
           columns:
-            - 'team VARCHAR(125)'
+            - 'team_name VARCHAR(125)'
             - 'year INTEGER'
             - 'schedule_link VARCHAR(1023) PRIMARY KEY'
-            - 'game_count INTEGER'
 
 
         - name: 'manager'
