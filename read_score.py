@@ -331,13 +331,13 @@ def generate_page_meta(page_data, cursor, boxscore_link):
     #Update boxscore with both records
     away = __team_data(away_team, cursor)
     #Away returned here is the away team_game_record.id
-    query = 'UPDATE boxscore SET away_record=%d where link="%s"' % \
+    query = 'UPDATE boxscore SET away_team_game_record=%d where link="%s"' % \
             (away, boxscore_link)
     cursor.execute(query)
 
     home = __team_data(home_team, cursor)
     #Home returned here is the home team_game_record.id
-    query = 'UPDATE boxscore SET home_record=%d where link="%s"' % \
+    query = 'UPDATE boxscore SET home_team_game_record=%d where link="%s"' % \
             (home, boxscore_link)
     cursor.execute(query)
 
