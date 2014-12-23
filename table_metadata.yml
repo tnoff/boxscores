@@ -24,8 +24,9 @@
 
         - name: 'boxscore'
           columns:
-            - 'team_one VARCHAR(125)'
-            - 'team_two VARCHAR(125)'
+            # Assume only two teams play cause...baseball i guess
+            - 'team_one_name VARCHAR(125)'
+            - 'team_two_name VARCHAR(125)'
             - 'date DATETIME'
             - 'link VARCHAR(1023) PRIMARY KEY'
             - 'html_path VARCHAR(1023)'

@@ -63,7 +63,7 @@ def __insert_boxscore(link, team, html_dir, cursor):
     except IOError:
         print 'Error saving file:', save_path
         sys.exit(-1)
-    query = "INSERT INTO boxscore(team_one, team_two, link, html_path, date)"\
+    query = "INSERT INTO boxscore(team_one_name, team_two_name, link, html_path, date)"\
            " VALUES ('%s', NULL, '%s', '%s', '%s')" % (team, link, save_path, date_string)
     cursor.execute(query)
 
@@ -76,7 +76,7 @@ def __collect_team(url, team, year, cursor, html_dir):
         #All boxscores have a link that starts with /boxes/
         if href.startswith('/boxes/') and href.endswith('.shtml'):
             link = MAIN_PREFIX + href
-            cursor.execute('SELECT link,team_one,team_two FROM boxscore WHERE link="%s"' % link)
+            cursor.execute('SELECT link,team_one_name,team_two_name FROM boxscore WHERE link="%s"' % link)
             #Check if link exists already
             select_result = cursor.fetchall()
             if select_result == []:
@@ -88,7 +88,7 @@ def __collect_team(url, team, year, cursor, html_dir):
                     query = 'UPDATE boxscore SET team_two="%s" WHERE link="%s"' % (team, link)
                     cursor.execute(query)
 
-    query = 'select count(*) from boxscore where (date BETWEEN "%d-01-01" AND "%d-12-31") AND ( team_one="%s" OR team_two="%s")' % (year, year, team, team)
+    query = 'select count(*) from boxscore where (date BETWEEN "%d-01-01" AND "%d-12-31") AND ( team_one_name="%s" OR team_two_name="%s")' % (year, year, team, team)
     cursor.execute(query)
     result = cursor.fetchall()[0][0]
     query = 'update boxscore_meta set game_count=%d where team="%s" and year=%d' % (result, team, year)
