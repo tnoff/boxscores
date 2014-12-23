@@ -32,7 +32,7 @@
             - 'attendance INTEGER'
             # Total time game took to complete  in minutes
             - 'game_time INTEGER'
-            - 'field VARCHAR(255)'
+            - 'field_used VARCHAR(255)'
             - 'away_team_game_record INTEGER' # FK to team_game_record.id
             - 'home_team_game_record INTEGER' # FK to team_game_record.id
             - 'winning_pitcher VARCHAR(1023)' # FK to player.link

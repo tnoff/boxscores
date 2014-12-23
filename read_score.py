@@ -317,7 +317,7 @@ def generate_page_meta(page_data, cursor, boxscore_link):
     # Parse that data
     meta = __parse_meta(data)
     query = 'UPDATE boxscore set date="%s",attendance=%s,game_time=%s,'\
-            'field="%s" where link="%s"' % (meta['date'], meta['attendance'],\
+            'field_used="%s" where link="%s"' % (meta['date'], meta['attendance'],\
              meta['game_time'], meta['field'], boxscore_link)
     query = query.replace('None', 'NULL')
     cursor.execute(query)
