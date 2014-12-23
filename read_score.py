@@ -21,56 +21,55 @@ BOXSCORE_SKIP = ['batting_avg', 'onbase_perc', 'slugging_perc',
 SMALL_TEXT_SKIP = ['tb', 'teamrisp']
 
 BOXSCORE_HITTING = {
-    #HTML TAG : DATABSE COLUMN
-    'a' : 'a',
-    'bb' : 'bb',
-    'h' : 'h',
-    'pa' : 'pa',
-    'so' : 'sob',
-    'rbi' : 'rbi',
-    'r' : 'rs',
-    'po' : 'po',
+    # HTML TAG : DATABSE COLUMN
+    'a' : 'assists',
+    'bb' : 'bases_on_balls',
+    'h' : 'hits',
+    'pa' : 'plate_appearances',
+    'so' : 'hitting_strike_outs',
+    'rbi' : 'runs_batted_in',
+    'r' : 'runs_scored',
+    'po' : 'put_outs',
     'strikes_total' : 'strikes_seen',
     'pitches' : 'pitches_seen',
 }
 
 BOXSCORE_PITCHING = {
-    #HTML TAG: DATABASE COLUMN
-    'ip' : 'ip',
-    'h' : 'ha',
-    'r' : 'ra',
-    'er' : 'era',
-    'bb' : 'bba',
-    'so' : 'sop',
-    'hr' : 'hra',
-    'batters_faced' : 'bf',
-    'pitches' : 'pitches',
+    # HTML TAG: DATABASE COLUMN
+    'ip' : 'innings_pitched',
+    'h' : 'hits_allowed',
+    'r' : 'runs_allowed',
+    'er' : 'earned_runs_allowed',
+    'bb' : 'bases_on_balls_allowed',
+    'so' : 'pitching_strike_outs',
+    'hr' : 'home_runs_allowed',
+    'batters_faced' : 'batters_faced',
+    'pitches' : 'pitches_thrown',
     'strikes_total' : 'strikes_total',
     'strikes_contact' : 'strikes_contact',
-    'strikes_swinging' : 'strikes_swing',
-    'strikes_looking' : 'strikes_look',
+    'strikes_swinging' : 'strikes_swinging',
+    'strikes_looking' : 'strikes_looking',
     'inplay_gb_total' : 'ground_balls',
     'inplay_fb_total' : 'fly_balls',
     'inplay_ld' : 'line_drives',
-    'inherited_runners' : 'ir',
+    'inherited_runners' : 'inherited_runners',
 }
-
-EXTRA_ORDER = ['umpires', 'gametime', 'attendance', 'field_condition', 'weather', None]
 
 EXTRA_PLAYER = {
     # HTML TAG: DATABASE COLUMN
-    '2b' : 'two_base',
-    'ibb' : 'ibb',
-    'hbp' : 'hbp',
-    'gidp' : 'gidp',
-    'rbi' : 'rbi',
-    'rbi2out' : 'rbi',
-    'dp' : 'dp',
+    '2b' : 'doubles',
+    '3b' : 'triples',
+    'hr' : 'home_runs',
+    'ibb' : 'intentional_bases_on_balls',
+    'hbp' : 'hit_by_pitch',
+    'gidp' : 'grounded_into_double_play',
+    'dp' : 'double_plays',
+    'errors' : 'errors',
 }
 
 EXTRA_TEAM = {
-    #HTML TAG: DATABASE COLUMN
-    'teamlob' : 'lob',
+    # HTML TAG: DATABASE COLUMN
+    'teamlob' : 'left_on_base',
 }
 
 
@@ -174,6 +173,13 @@ def __update_player_record(cursor, player_link, game_record,
     query = 'UPDATE player_game_record SET %s=%s' % (db_key, value)
     query += ' WHERE player_link="%s" AND'\
             ' game_record_id=%d' % (player_link, game_record)
+    cursor.execute(query)
+
+def __update_team_record(cursor, game_record, key, value):
+    db_key = EXTRA_TEAM[key]
+    # Update team record
+    query = 'UPDATE team_game_record SET %s=%s' % (db_key, value)
+    query += ' WHERE id=%d' % game_record
     cursor.execute(query)
 
 def __get_proper_time(time_data):
@@ -317,7 +323,7 @@ def generate_page_meta(page_data, cursor, boxscore_link):
     # Parse that data
     meta = __parse_meta(data)
     query = 'UPDATE boxscore set date="%s",attendance=%s,game_time=%s,'\
-            'field="%s" where link="%s"' % (meta['date'], meta['attendance'],\
+            'field_used="%s" where link="%s"' % (meta['date'], meta['attendance'],\
              meta['game_time'], meta['field'], boxscore_link)
     query = query.replace('None', 'NULL')
     cursor.execute(query)
@@ -331,13 +337,13 @@ def generate_page_meta(page_data, cursor, boxscore_link):
     #Update boxscore with both records
     away = __team_data(away_team, cursor)
     #Away returned here is the away team_game_record.id
-    query = 'UPDATE boxscore SET away_record=%d where link="%s"' % \
+    query = 'UPDATE boxscore SET away_team_game_record=%d where link="%s"' % \
             (away, boxscore_link)
     cursor.execute(query)
 
     home = __team_data(home_team, cursor)
     #Home returned here is the home team_game_record.id
-    query = 'UPDATE boxscore SET home_record=%d where link="%s"' % \
+    query = 'UPDATE boxscore SET home_team_game_record=%d where link="%s"' % \
             (home, boxscore_link)
     cursor.execute(query)
 
@@ -422,8 +428,8 @@ def __player_box(cursor, player_data, all_columns, good_columns,
             #Pitchers/ some hitters wont have this
             first = None
         #Build query
-        query = 'UPDATE player_game_record SET fielding_pos="%s",%s=%s,' \
-                  % (pos, key, first)
+        query = 'UPDATE player_game_record SET fielding_pos="%s",at_bats=%s,' \
+                  % (pos, first)
     if pitcher:
         key = 'ip'
         try:
@@ -431,7 +437,7 @@ def __player_box(cursor, player_data, all_columns, good_columns,
             whole = int(first)
             part = int((first - int(first)) * 10)
             query = 'UPDATE player_game_record SET fielding_pos="%s",' \
-                    'ip_whole=%d,ip_part=%d,' % (pos, whole, part)
+                    'innings_pitched_whole=%d,innings_pitched_part=%d,' % (pos, whole, part)
 
         except TypeError:
             #Pitchers/ some hitters wont have this
@@ -655,9 +661,11 @@ def __parse_subfield(subfield, cursor, away_record, home_record):
                                                       team_record=record,
                                                       away_record=away_record,
                                                       home_record=home_record)
-                if links or record:
-                    __update_player_record(cursor, links, record,
-                                           key, num)
+                    for link in links:
+                        __update_player_record(cursor, link, record,
+                                               key, num)
+                else:
+                    __update_team_record(cursor, record, key, num)
     except KeyError:
         # If it doesnt have an id its useless
         return
@@ -678,7 +686,7 @@ def __parse_boxscore_trailers(field, cursor, boxscore_link):
     elif field_id.lower() == 'weather':
         stringy = field_content.rstrip('.')
         stringy = stringy.lstrip(' ')
-        query = 'UPDATE boxscore SET weather="%s" WHERE link="%s"' % (stringy, boxscore_link)
+        query = 'UPDATE boxscore SET weather_description="%s" WHERE link="%s"' % (stringy, boxscore_link)
         cursor.execute(query)
 
 def parse_small_text(page_data, cursor, away_record, home_record,
@@ -709,6 +717,7 @@ def read_file(file_name, cursor):
     query += file_name + '%"'
     cursor.execute(query)
     result_link = cursor.fetchone()[0]
+    print 'Reading data from file:%s' % file_name
 
     with open(file_name, 'r') as f:
         data = f.read()

@@ -35,7 +35,7 @@ def collect_teams_and_schedules(year, cursor):
         print 'Gathering year:%d, Team:%s' % (year, info['team'])
         link = MAIN_PREFIX + info['schedule-link']
 
-        query = 'INSERT INTO boxscore_meta(year, team, schedule_link) VALUES (%d, "%s", "%s")' %  (year, info['team'], link)
+        query = 'INSERT INTO boxscore_meta(year, team_name, schedule_link) VALUES (%d, "%s", "%s")' %  (year, info['team'], link)
         cursor.execute(query)
 
 def __insert_boxscore(link, team, html_dir, cursor):
@@ -63,11 +63,11 @@ def __insert_boxscore(link, team, html_dir, cursor):
     except IOError:
         print 'Error saving file:', save_path
         sys.exit(-1)
-    query = "INSERT INTO boxscore(team_one, team_two, link, html_path, date)"\
+    query = "INSERT INTO boxscore(team_one_name, team_two_name, link, html_path, date)"\
            " VALUES ('%s', NULL, '%s', '%s', '%s')" % (team, link, save_path, date_string)
     cursor.execute(query)
 
-def __collect_team(url, team, year, cursor, html_dir):
+def __collect_team(url, team, cursor, html_dir):
     r = requests.get(url)
     __check_results(r, msg='Unable to retrieve team:%s' % url)
     soup = BeautifulSoup(r.text)
@@ -76,7 +76,7 @@ def __collect_team(url, team, year, cursor, html_dir):
         #All boxscores have a link that starts with /boxes/
         if href.startswith('/boxes/') and href.endswith('.shtml'):
             link = MAIN_PREFIX + href
-            cursor.execute('SELECT link,team_one,team_two FROM boxscore WHERE link="%s"' % link)
+            cursor.execute('SELECT link,team_one_name,team_two_name FROM boxscore WHERE link="%s"' % link)
             #Check if link exists already
             select_result = cursor.fetchall()
             if select_result == []:
@@ -85,17 +85,11 @@ def __collect_team(url, team, year, cursor, html_dir):
             else:
                 #First check that team not team one
                 if select_result[0][2] == None and select_result[0][1] != team:
-                    query = 'UPDATE boxscore SET team_two="%s" WHERE link="%s"' % (team, link)
+                    query = 'UPDATE boxscore SET team_two_name="%s" WHERE link="%s"' % (team, link)
                     cursor.execute(query)
 
-    query = 'select count(*) from boxscore where (date BETWEEN "%d-01-01" AND "%d-12-31") AND ( team_one="%s" OR team_two="%s")' % (year, year, team, team)
-    cursor.execute(query)
-    result = cursor.fetchall()[0][0]
-    query = 'update boxscore_meta set game_count=%d where team="%s" and year=%d' % (result, team, year)
-    cursor.execute(query)
-
 def collect_team_games(year, cursor, html_dir):
-    query = 'SELECT year,team,schedule_link, game_count from boxscore_meta where year=%d' % year
+    query = 'SELECT year,team_name,schedule_link from boxscore_meta where year=%d' % year
     cursor.execute(query)
     html_save = os.path.abspath(html_dir)
     #Make dir if needed
@@ -113,10 +107,7 @@ def collect_team_games(year, cursor, html_dir):
         #Tuple returned (year, team, link)
         url = item[2]
         team = item[1]
-        game_count = item[3]
-        if game_count:
-            continue
-        __collect_team(url, team, year, cursor, html_save)
+        __collect_team(url, team, cursor, html_save)
 
     sys.stdout.write('\n')
 

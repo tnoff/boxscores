@@ -17,9 +17,9 @@ def __create_table(cursor, table):
     try:
         cursor.execute(query)
         log.debug("Created table:%s" % table_name)
-    except sqlite3.OperationalError:
+    except sqlite3.OperationalError as e:
         # Assume table exists
-        log.debug("Table %s already exists" % table_name)
+        log.error("Cannot create table:%s, %s" % (table_name, e))
 
 def create_tables(cursor, tables_template):
     with open(os.path.abspath(tables_template)) as f:
