@@ -678,7 +678,7 @@ def __parse_boxscore_trailers(field, cursor, boxscore_link):
     elif field_id.lower() == 'weather':
         stringy = field_content.rstrip('.')
         stringy = stringy.lstrip(' ')
-        query = 'UPDATE boxscore SET weather="%s" WHERE link="%s"' % (stringy, boxscore_link)
+        query = 'UPDATE boxscore SET weather_description="%s" WHERE link="%s"' % (stringy, boxscore_link)
         cursor.execute(query)
 
 def parse_small_text(page_data, cursor, away_record, home_record,

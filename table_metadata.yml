@@ -39,7 +39,7 @@
             - 'winning_pitcher VARCHAR(1023)' # FK to player.link
             - 'losing_pitcher VARCHAR(1023)' # FK to player.link
             - 'saving_pitcher VARCHAR(1023)' # FK to player.link
-            - 'weather VARCHAR(1023)'
+            - 'weather_description VARCHAR(1023)'
 
 
         - name: 'team_game_record'
