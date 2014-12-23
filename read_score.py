@@ -23,7 +23,7 @@ SMALL_TEXT_SKIP = ['tb', 'teamrisp']
 BOXSCORE_HITTING = {
     #HTML TAG : DATABSE COLUMN
     'a' : 'a',
-    'bb' : 'base_on_balls',
+    'bb' : 'bases_on_balls',
     'h' : 'hits',
     'pa' : 'plate_appearances',
     'so' : 'strike_outs',
@@ -379,6 +379,8 @@ def __player_box(cursor, player_data, all_columns, good_columns,
     #Go through all columns ( td )
     #If data useful ( a good column ), save to player dict
     player_dict = dict()
+    print 'all columns:', all_columns
+    print 'player data:', player_data
     for (count, col) in enumerate(player_data.find_all('td')):
         if all_columns[count] in good_columns:
             player_dict[all_columns[count]] = col
@@ -423,8 +425,8 @@ def __player_box(cursor, player_data, all_columns, good_columns,
             #Pitchers/ some hitters wont have this
             first = None
         #Build query
-        query = 'UPDATE player_game_record SET fielding_pos="%s",%s=%s,' \
-                  % (pos, key, first)
+        query = 'UPDATE player_game_record SET fielding_pos="%s",at_bats=%s,' \
+                  % (pos, first)
     if pitcher:
         key = 'ip'
         try:
@@ -462,6 +464,7 @@ def __player_box(cursor, player_data, all_columns, good_columns,
     query += ' WHERE player_link="%s" AND game_record_id=%d' % \
                (player_url, record_id)
     query = query.replace('None', 'NULL')
+    print query
     cursor.execute(query)
 
 def __generate_box_data(cursor, box_count, page_data,

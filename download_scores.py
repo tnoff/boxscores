@@ -85,7 +85,7 @@ def __collect_team(url, team, cursor, html_dir):
             else:
                 #First check that team not team one
                 if select_result[0][2] == None and select_result[0][1] != team:
-                    query = 'UPDATE boxscore SET team_two="%s" WHERE link="%s"' % (team, link)
+                    query = 'UPDATE boxscore SET team_two_name="%s" WHERE link="%s"' % (team, link)
                     cursor.execute(query)
 
 def collect_team_games(year, cursor, html_dir):
