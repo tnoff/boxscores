@@ -1,118 +1,130 @@
 ---
-    - 'boxscore_meta':
-        - 'team VARCHAR(125)'
-        - 'year INTEGER'
-        - 'schedule_link VARCHAR(1023) PRIMARY KEY'
-        - 'game_count INTEGER'
+    tables:
+        - name: 'boxscore_meta'
+          columns:
+            - 'team VARCHAR(125)'
+            - 'year INTEGER'
+            - 'schedule_link VARCHAR(1023) PRIMARY KEY'
+            - 'game_count INTEGER'
 
 
-    - 'manager':
-        - 'first_name VARCHAR(511)'
-        - 'last_name VARCHAR(511)'
-        - 'link VARCHAR(1023) PRIMARY KEY'
+        - name: 'manager'
+          columns:
+            - 'first_name VARCHAR(511)'
+            - 'last_name VARCHAR(511)'
+            - 'link VARCHAR(1023) PRIMARY KEY'
 
 
-    - 'player':
-        - 'first_name VARCHAR(511)'
-        - 'last_name VARCHAR(511)'
-        - 'link VARCHAR(1023) PRIMARY KEY'
-
-    - 'boxscore':
-        - 'team_one VARCHAR(125)'
-        - 'team_two VARCHAR(125)'
-        - 'date DATETIME'
-        - 'link VARCHAR(1023) PRIMARY KEY'
-        - 'html_path VARCHAR(1023)'
-        - 'attendance INTEGER'
-        # Total time game took to complete  in minutes
-        - 'game_time INTEGER'
-        - 'field VARCHAR(255)'
-        - 'away_record INTEGER' # FK to team_game_record.id
-        - 'home_record INTEGER' # FK to team_game_record.id
-        - 'winning_pitcher VARCHAR(1023)' # FK to player.link
-        - 'losing_pitcher VARCHAR(1023)' # FK to player.link
-        - 'saving_pitcher VARCHAR(1023)' # FK to player.link
-        - 'weather VARCHAR(1023)'
+        - name: 'player'
+          columns:
+            - 'first_name VARCHAR(511)'
+            - 'last_name VARCHAR(511)'
+            - 'link VARCHAR(1023) PRIMARY KEY'
 
 
-    - 'team_game_record':
-        - 'id INTEGER PRIMARY KEY AUTOINCREMENT'
-        - 'team_name VARCHAR(125)'
-        - 'team_link VARCHAR(1023)'
-        - 'score INTEGER'
-        - 'hits INTEGER'
-        - 'errors INTEGER'
-        - 'lob INTEGER' # Left on base
-        - 'manager VARCHAR(1023)' # FK to manager.link
+        - name: 'boxscore'
+          columns:
+            - 'team_one VARCHAR(125)'
+            - 'team_two VARCHAR(125)'
+            - 'date DATETIME'
+            - 'link VARCHAR(1023) PRIMARY KEY'
+            - 'html_path VARCHAR(1023)'
+            - 'attendance INTEGER'
+            # Total time game took to complete  in minutes
+            - 'game_time INTEGER'
+            - 'field VARCHAR(255)'
+            - 'away_record INTEGER' # FK to team_game_record.id
+            - 'home_record INTEGER' # FK to team_game_record.id
+            - 'winning_pitcher VARCHAR(1023)' # FK to player.link
+            - 'losing_pitcher VARCHAR(1023)' # FK to player.link
+            - 'saving_pitcher VARCHAR(1023)' # FK to player.link
+            - 'weather VARCHAR(1023)'
 
 
-    - 'inning_score':
-        - 'game_record_id INTEGER' # FK to team_game_record.id
-        - 'inning INTEGER'
-        - 'score INTEGER'
+        - name: 'team_game_record'
+          columns:
+            - 'id INTEGER PRIMARY KEY AUTOINCREMENT'
+            - 'team_name VARCHAR(125)'
+            - 'team_link VARCHAR(1023)'
+            - 'score INTEGER'
+            - 'hits INTEGER'
+            - 'errors INTEGER'
+            - 'lob INTEGER' # Left on base
+            - 'manager VARCHAR(1023)' # FK to manager.link
 
 
-    - 'player_game_record':
-        - 'game_record_id INTEGER' # FK to team_game_record.id
-        - 'player_link VARCHAR(1023)' # FK to player.link
-        - 'fielding_pos VARCHAR(7)' #Position played
-        - 'batting_pos INTEGER' # Batting order ( if starter )
-        #Hitting
-        - 'ab INTEGER' # At Bats
-        - 'rs INTEGER' # Runs Scored
-        - 'h INTEGER' # Hits
-        - 'rbi INTEGER' # Runs Batted In
-        - 'bb INTEGER' # Bases on Balls
-        - 'ibb INTEGER' # Intentional Base of Balls
-        - 'hbp INTEGER' # Hit by pitch
-        - 'sob INTEGER' # Strikeouts Batting
-        - 'gidp INTEGER' # Grounded in to Double Play
-           #( Times player has struck out when hitting )
-        - 'pa INTEGER' # Plate Apparences
-        - 'two_base INTEGER' # Doubles
-        - 'three_base INTEGER' # Triples
-        - 'four_base INTEGER' # Home runs
-        - 'strikes_seen INTEGER' # Strikes seen as hitter
-        - 'pitches_seen INTEGER' # Pitches seen as hitter
-        #Pitching
-        - 'ip_whole INTEGER' # Whole Innings pitched
-        - 'ip_part INTEGER' # Partial Innings pitched
-        # For example 7 1/3 innings pitched would be ( 7 , 1 ) here
-        - 'ha INTEGER' # Hits allowed
-        - 'ra INTEGER' # Runs allowed
-        - 'era INTEGER' # Earned Runs Allowed
-        - 'hra INTEGER' # Home Runs Allowed
-        - 'bba INTEGER' # Base on Balls allowed
-        - 'sop INTEGER' # Strike Outs Pitching
-        - 'bf INTEGER' # Batters faced
-        - 'pitches INTEGER' #Pitches thrown
-        - 'strikes_total INTEGER' # Strikes thrown
-        - 'strikes_contact INTEGER' # Contact Strikes ( fouls )
-        - 'strikes_swing INTEGER' # Swinging Strikes
-        - 'strikes_look INTEGER' # Strikes Looking
-        - 'ground_balls INTEGER' # Ground balls
-        - 'fly_balls INTEGER' # Fly balls
-        - 'line_drives INTEGER' # Line Drives
-        - 'ir INTEGER' # Inherited Runners
-        #Fielding
-        - 'po INTEGER' # Putouts
-        - 'a INTEGER' # Assists
-        - 'dp INTEGER' # Double plays turned
-        - 'e INTEGER' # Errors
+        - name: 'inning_score'
+          columns:
+            - 'game_record_id INTEGER' # FK to team_game_record.id
+            - 'inning INTEGER'
+            - 'score INTEGER'
 
 
-    - 'manager':
-        - 'first_name VARCHAR(511)'
-        - 'last_name VARCHAR(511)'
-        - 'link VARCHAR(1023) PRIMARY KEY'
+        - name: 'player_game_record'
+          columns:
+            - 'game_record_id INTEGER' # FK to team_game_record.id
+            - 'player_link VARCHAR(1023)' # FK to player.link
+            - 'fielding_pos VARCHAR(7)' # Fielding position played
+            - 'batting_pos INTEGER' # Batting order ( if starter )
+            # Hitting
+            - 'ab INTEGER' # At Bats
+            - 'rs INTEGER' # Runs Scored
+            - 'h INTEGER' # Hits
+            - 'rbi INTEGER' # Runs Batted In
+            - 'bb INTEGER' # Bases on Balls
+            - 'ibb INTEGER' # Intentional Base of Balls
+            - 'hbp INTEGER' # Hit by pitch
+            - 'sob INTEGER' # Number of strikeouts
+            - 'gidp INTEGER' # Grounded in to Double Play
+            - 'pa INTEGER' # Plate Apparences
+            - 'two_base INTEGER' # Doubles
+            - 'three_base INTEGER' # Triples
+            - 'four_base INTEGER' # Home runs
+            - 'strikes_seen INTEGER' # Strikes seen as hitter
+            - 'pitches_seen INTEGER' # Pitches seen as hitter
+            # Pitching
+            - 'ip_whole INTEGER' # Whole Innings pitched
+            - 'ip_part INTEGER' # Partial Innings pitched
+            # For example 7 1/3 innings pitched would be ( 7 , 1 ) here
+            - 'ha INTEGER' # Hits allowed
+            - 'ra INTEGER' # Runs allowed
+            - 'era INTEGER' # Earned Runs Allowed
+            - 'hra INTEGER' # Home Runs Allowed
+            - 'bba INTEGER' # Base on Balls allowed
+            - 'sop INTEGER' # Strike Outs Pitching
+            - 'bf INTEGER' # Batters faced
+            - 'pitches INTEGER' #Pitches thrown
+            - 'strikes_total INTEGER' # Strikes thrown
+            - 'strikes_contact INTEGER' # Contact Strikes ( fouls )
+            - 'strikes_swing INTEGER' # Swinging Strikes
+            - 'strikes_look INTEGER' # Strikes Looking
+            - 'ground_balls INTEGER' # Ground balls
+            - 'fly_balls INTEGER' # Fly balls
+            - 'line_drives INTEGER' # Line Drives
+            - 'ir INTEGER' # Inherited Runners
+            #Fielding
+            - 'po INTEGER' # Putouts
+            - 'a INTEGER' # Assists
+            - 'dp INTEGER' # Double plays turned
+            - 'e INTEGER' # Errors
 
 
-    - 'player':
-        - 'first_name VARCHAR(511)'
-        - 'last_name VARCHAR(511)'
-        - 'link VARCHAR(1023) PRIMARY KEY'
+        - name: 'manager'
+          columns:
+            - 'first_name VARCHAR(511)'
+            - 'last_name VARCHAR(511)'
+            - 'link VARCHAR(1023) PRIMARY KEY'
 
-    - 'umpire_game_record':
-        - 'name VARCHAR(511)'
-        - 'boxscore_link VARCHAR(1023)' # Foreign key to boxscore.id
-        - 'position VARCHAR(15)'
+
+        - name: 'player'
+          columns:
+            - 'first_name VARCHAR(511)'
+            - 'last_name VARCHAR(511)'
+            - 'link VARCHAR(1023) PRIMARY KEY'
+
+
+        - name: 'umpire_game_record'
+          columns:
+            - 'name VARCHAR(511)'
+            - 'boxscore_link VARCHAR(1023)' # Foreign key to boxscore.id
+            - 'position VARCHAR(15)'

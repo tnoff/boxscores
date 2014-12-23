@@ -1,29 +1,31 @@
 from contextlib import contextmanager
+import logging
 import os
 import sqlite3
 import yaml
 
+log = logging.getLogger(__name__)
+
 def __create_table(cursor, table):
-    #Table meta
-    # - table_name :
-    # - 'team VARCHAR(256)'
-    # - 'date DATETIME'
-    # - 'link VARCHAR(1023) PRIMARY KEY'
+    log.info("Creating table:%s" % table)
+    column_list = table['columns']
+    table_name = table['name']
     query = 'CREATE TABLE '
-    for table_name, table_list in table.iteritems():
-        query += table_name + '('
-        query += ', '.join(k for k in table_list)
+    query += table_name + '('
+    query += ', '.join(column for column in column_list)
     query += ')'
     try:
         cursor.execute(query)
+        log.debug("Created table:%s" % table_name)
     except sqlite3.OperationalError:
-        #Assume table exists
-        pass
+        # Assume table exists
+        log.debug("Table %s already exists" % table_name)
 
 def create_tables(cursor, tables_template):
     with open(os.path.abspath(tables_template)) as f:
         data = yaml.load(f)
-        for table in data:
+        tables = data['tables']
+        for table in tables:
             __create_table(cursor, table)
 
 @contextmanager
