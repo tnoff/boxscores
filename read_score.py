@@ -23,12 +23,12 @@ SMALL_TEXT_SKIP = ['tb', 'teamrisp']
 BOXSCORE_HITTING = {
     #HTML TAG : DATABSE COLUMN
     'a' : 'a',
-    'bb' : 'bb',
-    'h' : 'h',
-    'pa' : 'pa',
-    'so' : 'sob',
-    'rbi' : 'rbi',
-    'r' : 'rs',
+    'bb' : 'base_on_balls',
+    'h' : 'hits',
+    'pa' : 'plate_appearances',
+    'so' : 'strike_outs',
+    'rbi' : 'runs_batted_in',
+    'r' : 'runs_scored',
     'po' : 'po',
     'strikes_total' : 'strikes_seen',
     'pitches' : 'pitches_seen',
@@ -59,13 +59,14 @@ EXTRA_ORDER = ['umpires', 'gametime', 'attendance', 'field_condition', 'weather'
 
 EXTRA_PLAYER = {
     # HTML TAG: DATABASE COLUMN
-    '2b' : 'two_base',
-    'ibb' : 'ibb',
-    'hbp' : 'hbp',
-    'gidp' : 'gidp',
-    'rbi' : 'rbi',
-    'rbi2out' : 'rbi',
-    'dp' : 'dp',
+    '2b' : 'doubles',
+    '3b' : 'triples',
+    'hr' : 'home_runs',
+    'ibb' : 'intentional_base_on_balls',
+    'hbp' : 'hit_by_pitch',
+    'gidp' : 'grounded_into_double_play',
+    'dp' : 'double_plays',
+    'errors' : 'errors',
 }
 
 EXTRA_TEAM = {

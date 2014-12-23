@@ -67,19 +67,19 @@
             - 'fielding_pos VARCHAR(7)' # Fielding position played
             - 'batting_pos INTEGER' # Batting order ( if starter )
             # Hitting
-            - 'ab INTEGER' # At Bats
-            - 'rs INTEGER' # Runs Scored
-            - 'h INTEGER' # Hits
-            - 'rbi INTEGER' # Runs Batted In
-            - 'bb INTEGER' # Bases on Balls
-            - 'ibb INTEGER' # Intentional Base of Balls
-            - 'hbp INTEGER' # Hit by pitch
-            - 'sob INTEGER' # Number of strikeouts
-            - 'gidp INTEGER' # Grounded in to Double Play
-            - 'pa INTEGER' # Plate Apparences
-            - 'two_base INTEGER' # Doubles
-            - 'three_base INTEGER' # Triples
-            - 'four_base INTEGER' # Home runs
+            - 'at_bats INTEGER' # At Bats
+            - 'runs_scored INTEGER' # Runs Scored
+            - 'hits INTEGER' # Hits
+            - 'runs_batted_in INTEGER' # Runs Batted In
+            - 'bases_on_balls INTEGER' # Bases on Balls
+            - 'intentional_bases_on_balls INTEGER' # Intentional Base of Balls
+            - 'hit_by_pitch INTEGER' # Hit by pitch
+            - 'strike_outs INTEGER' # Number of strikeouts
+            - 'grounded_into_douple_play INTEGER' # Grounded in to Double Play
+            - 'plate_appearances INTEGER' # Plate Apparences
+            - 'doubles INTEGER' # Doubles
+            - 'triples INTEGER' # Triples
+            - 'home_runs INTEGER' # Home runs
             - 'strikes_seen INTEGER' # Strikes seen as hitter
             - 'pitches_seen INTEGER' # Pitches seen as hitter
             # Pitching
@@ -105,8 +105,8 @@
             #Fielding
             - 'po INTEGER' # Putouts
             - 'a INTEGER' # Assists
-            - 'dp INTEGER' # Double plays turned
-            - 'e INTEGER' # Errors
+            - 'double_plays INTEGER' # Double plays turned
+            - 'errors INTEGER' # Errors
 
 
         - name: 'manager'
