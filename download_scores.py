@@ -118,16 +118,13 @@ def parse_args():
     p.add_argument('--database',
                    default='boxscores.sql',
                    help='Database file to use')
-    p.add_argument('--tables',
-                   default='table_metadata.yml',
-                   help='Table meta to follow')
     return p.parse_args()
 
 def main():
     args = vars(parse_args())
     with utils.connect_sql(args['database']) as sql_connection:
         cursor = sql_connection.cursor()
-        utils.create_tables(cursor, args['tables'])
+        utils.create_tables(cursor)
         collect_teams_and_schedules(args['year'],
                                     cursor)
         collect_team_games(args['year'],

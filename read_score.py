@@ -663,7 +663,7 @@ def main():
     args = vars(parse_args())
     with utils.connect_sql(args['database']) as sql_connection:
         cursor = sql_connection.cursor()
-        utils.create_tables(cursor, args['table'])
+        utils.create_tables(cursor)
         read_file(args['file_name'], cursor)
 
 if __name__ == '__main__':

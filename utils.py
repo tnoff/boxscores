@@ -1,8 +1,6 @@
 from contextlib import contextmanager
 import logging
-import os
 import sqlite3
-import yaml
 
 log = logging.getLogger(__name__)
 
@@ -30,17 +28,17 @@ BOXSCORE_SKIP = ['batting_avg', 'onbase_perc', 'slugging_perc',
 SMALL_TEXT_SKIP = ['tb', 'teamrisp']
 
 BOXSCORE_HITTING = {
-  # HTML TAG : DATABSE COLUMN
-  'a' : 'assists',
-  'bb' : 'bases_on_balls',
-  'h' : 'hits',
-  'pa' : 'plate_appearances',
-  'so' : 'hitting_strike_outs',
-  'rbi' : 'runs_batted_in',
-  'r' : 'runs_scored',
-  'po' : 'put_outs',
-  'strikes_total' : 'strikes_seen',
-  'pitches' : 'pitches_seen',
+    # HTML TAG : DATABSE COLUMN
+    'a' : 'assists',
+    'bb' : 'bases_on_balls',
+    'h' : 'hits',
+    'pa' : 'plate_appearances',
+    'so' : 'hitting_strike_outs',
+    'rbi' : 'runs_batted_in',
+    'r' : 'runs_scored',
+    'po' : 'put_outs',
+    'strikes_total' : 'strikes_seen',
+    'pitches' : 'pitches_seen',
 }
 
 BOXSCORE_PITCHING = {
@@ -82,18 +80,157 @@ EXTRA_TEAM = {
 }
 
 MONTH_NAME = {
-  'January' : 1,
-  'February' : 2,
-  'March' : 3,
-  'April' : 4,
-  'May' : 5,
-  'June' : 6,
-  'July' : 7,
-  'August' : 8,
-  'September' : 9,
-  'October' : 10,
-  'November' : 11,
-  'December' : 12,
+    'January' : 1,
+    'February' : 2,
+    'March' : 3,
+    'April' : 4,
+    'May' : 5,
+    'June' : 6,
+    'July' : 7,
+    'August' : 8,
+    'September' : 9,
+    'October' : 10,
+    'November' : 11,
+    'December' : 12,
+}
+
+DATABASE_SCHEMA = {
+    "tables": [
+        {
+            "name": "boxscore_meta",
+            "columns": [
+                "team_name VARCHAR(125)",
+                "year INTEGER",
+                "schedule_link VARCHAR(1023) PRIMARY KEY"
+            ]
+        },
+        {
+            "name": "manager",
+            "columns": [
+                "first_name VARCHAR(511)",
+                "last_name VARCHAR(511)",
+                "link VARCHAR(1023) PRIMARY KEY"
+            ]
+        },
+        {
+            "name": "player",
+            "columns": [
+                "first_name VARCHAR(511)",
+                "last_name VARCHAR(511)",
+                "link VARCHAR(1023) PRIMARY KEY"
+            ]
+        },
+        {
+            "name": "boxscore",
+            "columns": [
+                "team_one_name VARCHAR(125)",
+                "team_two_name VARCHAR(125)",
+                "date DATETIME",
+                "link VARCHAR(1023) PRIMARY KEY",
+                "html_path VARCHAR(1023)",
+                "attendance INTEGER",
+                "game_time INTEGER",
+                "field_used VARCHAR(255)",
+                "away_team_game_record INTEGER",
+                "home_team_game_record INTEGER",
+                "winning_pitcher VARCHAR(1023)",
+                "losing_pitcher VARCHAR(1023)",
+                "saving_pitcher VARCHAR(1023)",
+                "weather_description VARCHAR(1023)"
+            ]
+        },
+        {
+            "name": "team_game_record",
+            "columns": [
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "team_name VARCHAR(125)",
+                "team_link VARCHAR(1023)",
+                "score INTEGER",
+                "hits INTEGER",
+                "errors INTEGER",
+                "left_on_base INTEGER",
+                "manager VARCHAR(1023)"
+            ]
+        },
+        {
+            "name": "inning_score",
+            "columns": [
+                "game_record_id INTEGER",
+                "inning INTEGER",
+                "score INTEGER"
+            ]
+        },
+        {
+            "name": "player_game_record",
+            "columns": [
+                "game_record_id INTEGER",
+                "player_link VARCHAR(1023)",
+                "fielding_pos VARCHAR(7)",
+                "batting_pos INTEGER",
+                "at_bats INTEGER",
+                "runs_scored INTEGER",
+                "hits INTEGER",
+                "runs_batted_in INTEGER",
+                "bases_on_balls INTEGER",
+                "intentional_bases_on_balls INTEGER",
+                "hit_by_pitch INTEGER",
+                "hitting_strike_outs INTEGER",
+                "grounded_into_douple_play INTEGER",
+                "plate_appearances INTEGER",
+                "doubles INTEGER",
+                "triples INTEGER",
+                "home_runs INTEGER",
+                "strikes_seen INTEGER",
+                "pitches_seen INTEGER",
+                "innings_pitched_whole INTEGER",
+                "innings_pitched_part INTEGER",
+                "hits_allowed INTEGER",
+                "runs_allowed INTEGER",
+                "earned_runs_allowed INTEGER",
+                "home_runs_allowed INTEGER",
+                "bases_on_balls_allowed INTEGER",
+                "pitching_strike_outs INTEGER",
+                "batters_faced INTEGER",
+                "pitches_thrown INTEGER",
+                "strikes_total INTEGER",
+                "strikes_contact INTEGER",
+                "strikes_swinging INTEGER",
+                "strikes_looking INTEGER",
+                "ground_balls INTEGER",
+                "fly_balls INTEGER",
+                "line_drives INTEGER",
+                "inherited_runners INTEGER",
+                "put_outs INTEGER",
+                "assists INTEGER",
+                "double_plays INTEGER",
+                "errors INTEGER"
+            ]
+        },
+        {
+            "name": "manager",
+            "columns": [
+                "first_name VARCHAR(511)",
+                "last_name VARCHAR(511)",
+                "link VARCHAR(1023) PRIMARY KEY"
+            ]
+        },
+        {
+            "name": "player",
+            "columns": [
+                "first_name VARCHAR(511)",
+                "last_name VARCHAR(511)",
+                "link VARCHAR(1023) PRIMARY KEY"
+            ]
+        },
+        {
+            "name": "umpire_game_record",
+            "columns": [
+                "name VARCHAR(511)",
+                "boxscore_link VARCHAR(1023)",
+                "position VARCHAR(15)"
+            ]
+        }
+    ]
 }
 
 
@@ -113,12 +250,10 @@ def __create_table(cursor, table):
         # Assume table exists
         log.error("Cannot create table:%s, %s" % (table_name, e))
 
-def create_tables(cursor, tables_template):
-    with open(os.path.abspath(tables_template)) as f:
-        data = yaml.load(f)
-        tables = data['tables']
-        for table in tables:
-            __create_table(cursor, table)
+def create_tables(cursor):
+    tables = DATABASE_SCHEMA['tables']
+    for table in tables:
+        __create_table(cursor, table)
 
 @contextmanager
 def connect_sql(database_file):
