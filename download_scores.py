@@ -16,11 +16,6 @@ form = logging.Formatter(log_format)
 handle.setFormatter(form)
 log.addHandler(handle)
 
-MAIN_PREFIX = 'http://www.baseball-reference.com'
-BOXES = MAIN_PREFIX + '/boxes/'
-
-BOXSCORE_META_TABLE = 'boxscore_meta'
-
 def __check_results(request, msg=None):
     ''' Handle the fact that baseball-reference.com returns a "200" status code
         but an error message in the page content, rather than a legitimate HTTP
@@ -32,7 +27,7 @@ def __check_results(request, msg=None):
         sys.exit(-1)
 
 def collect_teams_and_schedules(year, cursor):
-    url = BOXES +'%d.shtml' % year
+    url = utils.BOXES_URL +'%d.shtml' % year
     r = requests.get(url)
     __check_results(r, msg='Unable to retrieve year:%s' % year)
     soup = BeautifulSoup(r.text)
@@ -42,7 +37,7 @@ def collect_teams_and_schedules(year, cursor):
                 'schedule-link' : i['href']
                }
         log.debug('Gathering info for team:%s in year:%s' % (info['team'], year))
-        link = MAIN_PREFIX + info['schedule-link']
+        link = utils.URL_PREFIX + info['schedule-link']
 
         query = 'INSERT INTO boxscore_meta(year, team_name, schedule_link) VALUES (%d, "%s", "%s")' %  (year, info['team'], link)
         cursor.execute(query)
@@ -85,7 +80,7 @@ def __collect_team(url, team, cursor, html_dir):
         href = i['href']
         # All boxscores have a link that starts with /boxes/
         if href.startswith('/boxes/') and href.endswith('.shtml'):
-            link = MAIN_PREFIX + href
+            link = utils.URL_PREFIX + href
             cursor.execute('SELECT link,team_one_name,team_two_name FROM boxscore WHERE link="%s"' % link)
             # Check if link exists already
             select_result = cursor.fetchall()

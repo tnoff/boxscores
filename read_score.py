@@ -3,91 +3,6 @@ from bs4 import BeautifulSoup
 import utils
 import sqlite3
 
-MAIN_PREFIX = 'http://www.baseball-reference.com'
-
-META_FIELD_ORDER = ['date', 'field', 'attendance']
-META_ADDITIONAL_ARGS = ['game_time']
-TEAM_ORDER = ['score', 'record', None, None, 'manager']
-TEAM_ORDER_ARGS = ['team_shortname']
-PITCHER_ORDER = ['winning_pitcher', 'losing_pitcher', 'saving_pitcher']
-
-BOXSCORE_SKIP = ['batting_avg', 'onbase_perc', 'slugging_perc',
-                 'onbase_plus_slugging', 'wpa_bat_neg', 'details',
-                 'wpa_bat_pos', 'wpa_bat', 're24_bat', 'leverage_index_avg',
-                 'earned_run_avg', 'inplay_unk', 'game_score',
-                 'inherited_score', 'wpa_def', 'leverage_index_avg',
-                 're24_def', 'blank']
-
-SMALL_TEXT_SKIP = ['tb', 'teamrisp']
-
-BOXSCORE_HITTING = {
-    # HTML TAG : DATABSE COLUMN
-    'a' : 'assists',
-    'bb' : 'bases_on_balls',
-    'h' : 'hits',
-    'pa' : 'plate_appearances',
-    'so' : 'hitting_strike_outs',
-    'rbi' : 'runs_batted_in',
-    'r' : 'runs_scored',
-    'po' : 'put_outs',
-    'strikes_total' : 'strikes_seen',
-    'pitches' : 'pitches_seen',
-}
-
-BOXSCORE_PITCHING = {
-    # HTML TAG: DATABASE COLUMN
-    'ip' : 'innings_pitched',
-    'h' : 'hits_allowed',
-    'r' : 'runs_allowed',
-    'er' : 'earned_runs_allowed',
-    'bb' : 'bases_on_balls_allowed',
-    'so' : 'pitching_strike_outs',
-    'hr' : 'home_runs_allowed',
-    'batters_faced' : 'batters_faced',
-    'pitches' : 'pitches_thrown',
-    'strikes_total' : 'strikes_total',
-    'strikes_contact' : 'strikes_contact',
-    'strikes_swinging' : 'strikes_swinging',
-    'strikes_looking' : 'strikes_looking',
-    'inplay_gb_total' : 'ground_balls',
-    'inplay_fb_total' : 'fly_balls',
-    'inplay_ld' : 'line_drives',
-    'inherited_runners' : 'inherited_runners',
-}
-
-EXTRA_PLAYER = {
-    # HTML TAG: DATABASE COLUMN
-    '2b' : 'doubles',
-    '3b' : 'triples',
-    'hr' : 'home_runs',
-    'ibb' : 'intentional_bases_on_balls',
-    'hbp' : 'hit_by_pitch',
-    'gidp' : 'grounded_into_double_play',
-    'dp' : 'double_plays',
-    'errors' : 'errors',
-}
-
-EXTRA_TEAM = {
-    # HTML TAG: DATABASE COLUMN
-    'teamlob' : 'left_on_base',
-}
-
-
-MONTH_PREFIX = {
-    'January' : 1,
-    'February' : 2,
-    'March' : 3,
-    'April' : 4,
-    'May' : 5,
-    'June' : 6,
-    'July' : 7,
-    'August' : 8,
-    'September' : 9,
-    'October' : 10,
-    'November' : 11,
-    'December' : 12,
-}
-
 def __check_blank(stringy):
     if stringy == '':
         return True
@@ -168,7 +83,7 @@ def __ensure_player_game(cursor, player_link, game_record):
 
 def __update_player_record(cursor, player_link, game_record,
                            key, value):
-    db_key = EXTRA_PLAYER[key]
+    db_key = utils.EXTRA_PLAYER[key]
     # Update player record
     query = 'UPDATE player_game_record SET %s=%s' % (db_key, value)
     query += ' WHERE player_link="%s" AND'\
@@ -176,7 +91,7 @@ def __update_player_record(cursor, player_link, game_record,
     cursor.execute(query)
 
 def __update_team_record(cursor, game_record, key, value):
-    db_key = EXTRA_TEAM[key]
+    db_key = utils.EXTRA_TEAM[key]
     # Update team record
     query = 'UPDATE team_game_record SET %s=%s' % (db_key, value)
     query += ' WHERE id=%d' % game_record
@@ -185,7 +100,7 @@ def __update_team_record(cursor, game_record, key, value):
 def __get_proper_time(time_data):
     date_data = time_data.split(',')
     month_day = date_data[1].split(' ')
-    month = MONTH_PREFIX[month_day[1]]
+    month = utils.MONTH_NAME[month_day[1]]
     day = int(month_day[-1])
     year = int(date_data[2])
     date_string = '%d-%d-%d' % (year, month, day)
@@ -236,10 +151,10 @@ def __parse_meta(data):
     # match this against META ORDER
     for (count, div) in enumerate(data.find_all('div')):
         try:
-            meta[META_FIELD_ORDER[count]] = div.contents[0]
+            meta[utils.META_FIELD_ORDER[count]] = div.contents[0]
         except IndexError:
             break
-    for arg in META_ADDITIONAL_ARGS:
+    for arg in utils.META_ADDITIONAL_ARGS:
         meta[arg] = None
     # Format of date is;[Day of Week], [Month (3)] [Day (2)], [Year (4)], [Time]
     # So for example := Mon, APR 3, 2014, 1:00 PM
@@ -261,12 +176,12 @@ def __team_data(data, cursor):
     team_shortname = data.find('span').contents[0]
     #Get info from div in TEAM ORDER
     for (count, i) in enumerate(data.find_all('div')):
-        if TEAM_ORDER[count]:
-            team[TEAM_ORDER[count]] = i.contents[0]
+        if utils.TEAM_ORDER[count]:
+            team[utils.TEAM_ORDER[count]] = i.contents[0]
     score = int(team['score'])
     manager = team['manager']
     #Get specific manager information
-    manager_url = MAIN_PREFIX + manager.attrs['href']
+    manager_url = utils.URL_PREFIX + manager.attrs['href']
     manager_name = manager.contents[0]
 
     #Check for manager before continuing
@@ -282,7 +197,7 @@ def __team_data(data, cursor):
 def __parse_linescore(data_list, record_id, cursor):
     #Parse specific information from linescore
     #Team url always ref of first object
-    team_url = MAIN_PREFIX + next_element(data_list[0]).attrs['href']
+    team_url = utils.URL_PREFIX + next_element(data_list[0]).attrs['href']
 
     #Remove blanks to only get score numbers
     #Then create one entry for each inning
@@ -356,10 +271,10 @@ def generate_page_meta(page_data, cursor, boxscore_link):
         pitcher_info = i.contents[2]
         #Name in contents, unique link in href
         name = pitcher_info.contents[0]
-        url = MAIN_PREFIX + pitcher_info.attrs['href']
+        url = utils.URL_PREFIX + pitcher_info.attrs['href']
         __ensure_player(cursor, name, url)
         query = 'UPDATE boxscore SET %s="%s" WHERE link="%s"' % \
-                (PITCHER_ORDER[count], url, boxscore_link)
+                (utils.PITCHER_ORDER[count], url, boxscore_link)
         cursor.execute(query)
 
     #Find linescore
@@ -404,7 +319,7 @@ def __player_box(cursor, player_data, all_columns, good_columns,
             return
     #Player URL
     try:
-        player_url = MAIN_PREFIX + player_dict['player'].find('a').attrs['href']
+        player_url = utils.URL_PREFIX + player_dict['player'].find('a').attrs['href']
     except AttributeError:
         #If attribute error, is a team total row
         #Who cares so return
@@ -458,10 +373,10 @@ def __player_box(cursor, player_data, all_columns, good_columns,
         except TypeError:
             player_dict[col] = None
     if hitter:
-        query += ','.join('%s=%s' % (BOXSCORE_HITTING[m], player_dict[m]) \
+        query += ','.join('%s=%s' % (utils.BOXSCORE_HITTING[m], player_dict[m]) \
                           for m in rest_cols)
     if pitcher:
-        query += ','.join('%s=%s' % (BOXSCORE_PITCHING[m], player_dict[m]) \
+        query += ','.join('%s=%s' % (utils.BOXSCORE_PITCHING[m], player_dict[m]) \
                           for m in rest_cols)
     #Add values of which record to update
     query += ' WHERE player_link="%s" AND game_record_id=%d' % \
@@ -496,8 +411,8 @@ def __parse_lineup(cursor, page_data, away_record, home_record,
                 line_data[all_columns[count]] = item
         #Generate the good data
         try:
-            home_url = MAIN_PREFIX + line_data['player_home'].find('a').attrs['href']
-            away_url = MAIN_PREFIX + line_data['player_visitor'].find('a').attrs['href']
+            home_url = utils.URL_PREFIX + line_data['player_home'].find('a').attrs['href']
+            away_url = utils.URL_PREFIX + line_data['player_visitor'].find('a').attrs['href']
         except AttributeError:
             #If cant find url, result is probably blank row
             continue
@@ -534,7 +449,7 @@ def box_summary(page_data, cursor, away, home):
         for col in box.find_all('th'):
             name = col.attrs['data-stat'].lower().replace(' ', '')
             all_cols.append(name)
-            if name not in BOXSCORE_SKIP:
+            if name not in utils.BOXSCORE_SKIP:
                 good_cols.append(name)
         #First is always table headers
         #Rest are player boxscores
@@ -633,7 +548,7 @@ def __parse_subfield(subfield, cursor, away_record, home_record):
         # Remove 'home' or 'visitor' from string
         key = key.replace(team, '')
         # If not a skipable key, get the data
-        if key not in SMALL_TEXT_SKIP:
+        if key not in utils.SMALL_TEXT_SKIP:
             # Get all data in string
             # Any data in paren () denotes season totals
             # Don't care about those so remove
