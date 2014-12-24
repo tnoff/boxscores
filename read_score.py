@@ -1,6 +1,6 @@
 import argparse
 from bs4 import BeautifulSoup
-import utils
+from client import utils
 import sqlite3
 
 def __check_blank(stringy):
