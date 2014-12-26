@@ -14,11 +14,14 @@ def parse_args():
     p.add_argument('--database',
                    default='boxscores.sql',
                    help='Database file to use')
+    p.add_argument('--log', default='log', help='Logging file')
     return p.parse_args()
 
 def main():
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
     args = vars(parse_args())
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
+                        level=logging.DEBUG,
+                        filename=args['log'])
     with utils.connect_sql(args['database']) as sql_connection:
         cursor = sql_connection.cursor()
         utils.create_tables(cursor)
